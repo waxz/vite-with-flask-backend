@@ -1,7 +1,15 @@
-from flask import Flask, render_template, g, session, request, redirect, url_for
+from flask import Flask, render_template, g, session, request, redirect, url_for, flash
 from assets_blueprint import assets_blueprint
 import flask,  urllib.parse
 from flask_session import Session
+import hashlib
+
+
+# Dummy database of users
+PSW_FILE="./psw.d"
+
+PSW_DATA = open(PSW_FILE)
+PSW_DATA =  [l.strip() for l in PSW_DATA]
 
 # Set up application.
 app = Flask(
@@ -26,12 +34,20 @@ app.register_blueprint(assets_blueprint)
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        # Check credentials (you'll replace this with your own logic)
-        if request.form['username'] == 'admin' and request.form['password'] == 'password':
+        username = request.form.get("username")
+        password = request.form.get("password")       
+        user_psw = f"{username}:{password}"
+        psw = hashlib.sha256(user_psw.encode('utf8')).digest().hex()
+        
+        print(f"username : {username}, password : {password}, psw ; {psw}")
+ # Check credentials (you'll replace this with your own logic)
+        if psw in PSW_DATA:
             session['logged_in'] = True
+            session['user_id'] = username
             return redirect(url_for("homepage"))
         else:
-            return 'Invalid username/password combination'
+            flash('Wrong username or password')
+            #return 'Invalid username/password combination'
     return render_template('login.html')
 
 @app.route('/logout')
