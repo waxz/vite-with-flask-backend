@@ -11,6 +11,7 @@ HASH() {
 
 # npm
 sudo npm i npm@11.2.0 -g
+pnpm install
 
 # nginx
 sudo apt update
