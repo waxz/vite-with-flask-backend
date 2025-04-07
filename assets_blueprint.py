@@ -2,11 +2,11 @@ import json
 import os
 from pathlib import Path
 
-from flask import Blueprint
+from flask import Blueprint,g, session
 
 # Get environment variables.
 FLASK_DEBUG = os.getenv("FLASK_DEBUG", "0")
-VITE_ORIGIN = os.getenv("VITE_ORIGIN", "http://localhost:5173")
+VITE_ORIGIN = os.getenv("VITE_ORIGIN", "http://localhost:8101")
 
 # Set application constants.
 is_gunicorn = "gunicorn" in os.environ.get("SERVER_SOFTWARE", "")
@@ -38,6 +38,15 @@ if is_production:
 @assets_blueprint.app_context_processor
 def add_context():
     def dev_asset(file_path):
+
+        base_url = session["base_url"]
+        hostname = session["hostname"]
+        print(f"hostname : {hostname}")
+        #VITE_ORIGIN = f"http://{hostname}:8101"
+
+        print("VITE_ORIGIN: ", VITE_ORIGIN)
+        url = f"{VITE_ORIGIN}/assets/{file_path}"
+        print(f"url: {url}")
         return f"{VITE_ORIGIN}/assets/{file_path}"
 
     def prod_asset(file_path):
